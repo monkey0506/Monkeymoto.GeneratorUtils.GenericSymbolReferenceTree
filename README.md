@@ -32,7 +32,7 @@ Your `csproj` file may look like this:
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
-    <PackageReference Include="Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree" Version="1.0.0.1">
+    <PackageReference Include="Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree" Version="1.0.0.2">
       <PrivateAssets>all</PrivateAssets>
       <GeneratePathProperty>true</GeneratePathProperty>
     </PackageReference>
