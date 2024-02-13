@@ -44,7 +44,7 @@ Your `csproj` file may look like this:
 
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGMonkeymoto_GeneratorUtils_GenericSymbolWithSyntaxTree)\lib\netstandard2.0\GenericSymbolWithSyntaxTree.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGMonkeymoto_GeneratorUtils_GenericSymbolWithSyntaxTree)\lib\netstandard2.0\Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
 
