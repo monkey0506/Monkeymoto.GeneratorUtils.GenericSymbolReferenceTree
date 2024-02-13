@@ -25,6 +25,9 @@ used in your project's compilation, each paired with a syntax node.</Description
     <RepositoryType>git</RepositoryType>
     <PackageTags>incremental-generator, source-generator, generics</PackageTags>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,10 +39,6 @@ used in your project's compilation, each paired with a syntax node.</Description
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="COPYING.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
     <None Update="LICENSE.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

@@ -8,10 +8,48 @@ used in your project's compilation, each paired with a syntax node.
 This project is designed to be used with a C# incremental generator to discover
 closed generic symbols that are referenced in your project's compilation.
 Accordingly, the first step in using this project is to [add the necessary
-references to your `csproj` file](https://github.com/dotnet/roslyn/discussions/47517)[^1].
+references to your `csproj` file](https://github.com/dotnet/roslyn/discussions/47517).
 
-[^1]: This project will be built and published as a NuGet package. This README
-should then be updated with relevant package info.
+The pre-built binaries of this project are available as a
+[NuGet Package](https://www.nuget.org/packages/Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree).
+Your `csproj` file may look like this:
+
+````XML
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <PublishAot>false</PublishAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree" Version="1.0.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <GeneratePathProperty>true</GeneratePathProperty>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetDependencyTargetPaths">
+    <ItemGroup>
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGMonkeymoto_GeneratorUtils_GenericSymbolWithSyntaxTree)\lib\netstandard2.0\GenericSymbolWithSyntaxTree.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>
+
+</Project>
+````
 
 Once this project has been added to your incremental generator, you can then
 use the `GenericSymbolWithSyntaxTree.FromIncrementalGeneratorInitializationContext`
