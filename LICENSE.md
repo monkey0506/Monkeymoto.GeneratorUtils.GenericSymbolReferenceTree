@@ -1,5 +1,6 @@
 # GenericSymbolWithSyntaxTree
-**GenericSymbolWithSyntaxTree**<br/>
+**GenericSymbolWithSyntaxTree**
+
 Copyright (C) 2024 Monkeymoto Productions, Inc.
 
 
@@ -35,7 +36,8 @@ as the name is changed.
 
 ## .NET FOUNDATION - MIT LICENSE
 
-**.NET Runtime**<br/>
+**.NET Runtime**
+
 https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
 
 ````
@@ -66,7 +68,8 @@ SOFTWARE.
 
 ## STACK OVERFLOW - CC BY-SA 2.5 LICENSE
 
-**CC BY-SA 2.5 DEED**<br/>
+**CC BY-SA 2.5 DEED**
+
 <https://creativecommons.org/licenses/by-sa/2.5/>
 
 ````
