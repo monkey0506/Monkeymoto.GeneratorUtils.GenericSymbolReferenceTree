@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using System;
@@ -97,7 +98,7 @@ namespace Monkeymoto.GeneratorUtils
         {
             var symbol = syntaxNode switch
             {
-                GenericNameSyntax => semanticModel.GetSymbolInfo(syntaxNode, cancellationToken).Symbol,
+                GenericNameSyntax genericNameSyntax => GetSymbol(genericNameSyntax, semanticModel, cancellationToken),
                 IdentifierNameSyntax or InvocationExpressionSyntax => GetSymbol(syntaxNode, semanticModel, cancellationToken),
                 _ => null
             };
@@ -137,6 +138,24 @@ namespace Monkeymoto.GeneratorUtils
             ArgumentNullExceptionHelper.ThrowIfNull(syntaxNode);
             ArgumentNullExceptionHelper.ThrowIfNull(semanticModel);
             return FromSyntaxNodeInternal(syntaxNode, semanticModel, cancellationToken);
+        }
+
+        private static ISymbol? GetSymbol
+        (
+            GenericNameSyntax genericNameSyntax,
+            SemanticModel semanticModel,
+            CancellationToken cancellationToken
+        )
+        {
+            if ((genericNameSyntax.Parent is InvocationExpressionSyntax) ||
+                ((genericNameSyntax.Parent is MemberAccessExpressionSyntax memberAccessExpressionSyntax) &&
+                (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)))
+            {
+                // generic method invocations with an explicit type argument list produce a GenericNameSyntax node
+                // this node is already added to the tree via the (grand)parent InvocationExpressionSyntax node
+                return null;
+            }
+            return semanticModel.GetSymbolInfo(genericNameSyntax, cancellationToken).Symbol;
         }
 
         private static ISymbol? GetSymbol
