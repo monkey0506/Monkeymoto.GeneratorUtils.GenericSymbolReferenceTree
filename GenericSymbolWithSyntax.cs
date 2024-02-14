@@ -114,6 +114,14 @@ namespace Monkeymoto.GeneratorUtils
         /// <summary>
         /// Gets a new instance representing the given syntax node and its associated generic symbol.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Generic method invocations with an explicit type argument list will produce both a
+        /// <see cref="InvocationExpressionSyntax"/> and a descendant <see cref="GenericNameSyntax"/>. In this case, only the
+        /// <see cref="InvocationExpressionSyntax"/> node is supported by this method; the <see cref="GenericNameSyntax"/> will
+        /// return <see langword="null"/>.
+        /// </para>
+        /// </remarks>
         /// <param name="syntaxNode">The syntax node to associate with a generic symbol.</param>
         /// <param name="semanticModel">
         /// The <see cref="SemanticModel"/> used to get a <see cref="ISymbol">symbolic reference</see> to
@@ -147,13 +155,22 @@ namespace Monkeymoto.GeneratorUtils
             CancellationToken cancellationToken
         )
         {
-            if ((genericNameSyntax.Parent is InvocationExpressionSyntax) ||
-                ((genericNameSyntax.Parent is MemberAccessExpressionSyntax memberAccessExpressionSyntax) &&
-                (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)))
+            var syntaxNode = genericNameSyntax.Parent;
+            for ( ; syntaxNode is MemberAccessExpressionSyntax; syntaxNode = syntaxNode.Parent) { }
+            if (syntaxNode is InvocationExpressionSyntax)
             {
-                // generic method invocations with an explicit type argument list produce a GenericNameSyntax node
-                // this node is already added to the tree via the (grand)parent InvocationExpressionSyntax node
-                return null;
+                var invocationOperation = semanticModel.GetOperation(syntaxNode, cancellationToken) as IInvocationOperation;
+                var methodSymbol = invocationOperation?.TargetMethod;
+                if ((methodSymbol is not null) && (genericNameSyntax.Arity == methodSymbol.Arity) &&
+                    (genericNameSyntax.Identifier.Text == methodSymbol.Name))
+                {
+                    var genericNameSymbol = semanticModel.GetSymbolInfo(genericNameSyntax, cancellationToken).Symbol;
+                    if (SymbolEqualityComparer.Default.Equals(genericNameSymbol, methodSymbol))
+                    {
+                        return null;
+                    }
+                    return genericNameSymbol;
+                }
             }
             return semanticModel.GetSymbolInfo(genericNameSyntax, cancellationToken).Symbol;
         }
