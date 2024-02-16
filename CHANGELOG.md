@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 2.0.0 (2024-02-16)
+
+ - Improve symbol matching in some circumstances.
+ - Add option to exclude paths from the tree.
+ - Project renamed (forced version increase to v2.0).
+
 ## 1.0.1 (2024-02-15)
 
  - Fix some generic method invocations being added to the tree twice.
