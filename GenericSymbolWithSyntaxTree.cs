@@ -195,22 +195,20 @@ namespace Monkeymoto.GeneratorUtils
         )
         {
             ArgumentNullExceptionHelper.ThrowIfNull(symbol);
-            bool isOriginalDefinition = SymbolEqualityComparer.Default.Equals(symbol, symbol.OriginalDefinition);
+
+            bool Match(GenericSymbolWithSyntax x) => symbol.IsDefinition ?
+                SymbolEqualityComparer.Default.Equals(symbol, x.Symbol.OriginalDefinition) :
+                SymbolEqualityComparer.Default.Equals(symbol, x.Symbol);
+
             var branches = new HashSet<GenericSymbolWithSyntax>();
             // the tree branches may change during iteration, make a copy of what we're searching for before iterating
-            var searchBranches = closedBranches.Keys.Where
-            (
-                x => SymbolEqualityComparer.Default.Equals(symbol, isOriginalDefinition ? x.Symbol.OriginalDefinition : x.Symbol)
-            ).ToImmutableArray();
+            var searchBranches = closedBranches.Keys.Where(Match).ToImmutableArray();
             foreach (var searchBranch in searchBranches)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 branches.UnionWith(closedBranches[searchBranch]);
             }
-            searchBranches = openBranches.Where
-            (
-                x => SymbolEqualityComparer.Default.Equals(symbol, isOriginalDefinition ? x.Symbol.OriginalDefinition : x.Symbol)
-            ).ToImmutableArray();
+            searchBranches = openBranches.Where(Match).ToImmutableArray();
             foreach (var searchBranch in searchBranches)
             {
                 cancellationToken.ThrowIfCancellationRequested();
