@@ -37,9 +37,35 @@ namespace Monkeymoto.GeneratorUtils
             IncrementalGeneratorInitializationContext context
         )
         {
+            return FromIncrementalGeneratorInitializationContext(context, []);
+        }
+
+        /// <inheritdoc cref="FromIncrementalGeneratorInitializationContext(IncrementalGeneratorInitializationContext)"/>
+        /// <param name="excludePaths">
+        /// File paths to exclude from the tree, for example files your generator added to the compilation that contain only
+        /// definitions.
+        /// </param>
+        public static IncrementalValueProvider<GenericSymbolWithSyntaxTree> FromIncrementalGeneratorInitializationContext
+        (
+            IncrementalGeneratorInitializationContext context,
+            params string[] excludePaths
+        )
+        {
+            static bool Predicate(SyntaxNode node, CancellationToken _) =>
+                node is GenericNameSyntax or InvocationExpressionSyntax or IdentifierNameSyntax;
+
+            bool PredicateWithExclusions(SyntaxNode node, CancellationToken cancellationToken)
+            {
+                if (excludePaths.Any(x => node.SyntaxTree.FilePath == x))
+                {
+                    return false;
+                }
+                return Predicate(node, cancellationToken);
+            }
+
             return context.SyntaxProvider.CreateSyntaxProvider
             (
-                static (node, _) => node is GenericNameSyntax or InvocationExpressionSyntax or IdentifierNameSyntax,
+                excludePaths.Length == 0 ? Predicate : PredicateWithExclusions,
                 static (context, cancellationToken) =>
                     GenericSymbolWithSyntax.FromSyntaxNodeInternal(context.Node, context.SemanticModel, cancellationToken)
             ).Collect().Select
