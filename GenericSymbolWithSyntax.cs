@@ -156,7 +156,10 @@ namespace Monkeymoto.GeneratorUtils
         )
         {
             var syntaxNode = genericNameSyntax.Parent;
-            for ( ; syntaxNode is MemberAccessExpressionSyntax; syntaxNode = syntaxNode.Parent) { }
+            if (syntaxNode is MemberAccessExpressionSyntax)
+            {
+                syntaxNode = syntaxNode.Parent;
+            }
             if (syntaxNode is InvocationExpressionSyntax)
             {
                 var invocationOperation = semanticModel.GetOperation(syntaxNode, cancellationToken) as IInvocationOperation;
