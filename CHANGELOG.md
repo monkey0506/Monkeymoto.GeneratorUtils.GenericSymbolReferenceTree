@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## 2.0.0.1 (2024-02-16)
+
+ - Fix GitHub URL in NuGet package.
+
 ## 2.0.0 (2024-02-16)
 
  - Improve symbol matching in some circumstances.

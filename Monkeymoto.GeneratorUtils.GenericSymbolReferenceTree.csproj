@@ -21,12 +21,12 @@
     <Description>C# incremental generator utility to produce a tree of closed generic symbols
 used in your project's compilation, each paired with a syntax node.</Description>
     <PackageProjectUrl></PackageProjectUrl>
-    <RepositoryUrl>https://github.com/monkey0506/GenericSymbolReferenceTree</RepositoryUrl>
+    <RepositoryUrl>https://github.com/monkey0506/Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>incremental-generator, source-generator, generics</PackageTags>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <FileVersion>$(AssemblyVersion)</FileVersion>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.0.1</AssemblyVersion>
     <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 
