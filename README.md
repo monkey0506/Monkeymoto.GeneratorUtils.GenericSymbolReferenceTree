@@ -1,4 +1,4 @@
-# GenericSymbolWithSyntaxTree
+# GenericSymbolReferenceTree
 
 C# incremental generator utility to produce a tree of closed generic symbols
 used in your project's compilation, each paired with a syntax node.
@@ -11,7 +11,7 @@ Accordingly, the first step in using this project is to [add the necessary
 references to your `csproj` file](https://github.com/dotnet/roslyn/discussions/47517).
 
 The pre-built binaries of this project are available as a
-[NuGet Package](https://www.nuget.org/packages/Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree).
+[NuGet Package](https://www.nuget.org/packages/Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree).
 Your `csproj` file may look like this:
 
 ````XML
@@ -32,7 +32,7 @@ Your `csproj` file may look like this:
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
-    <PackageReference Include="Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree" Version="1.0.0.2">
+    <PackageReference Include="Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree" Version="1.0.0.2">
       <PrivateAssets>all</PrivateAssets>
       <GeneratePathProperty>true</GeneratePathProperty>
     </PackageReference>
@@ -44,7 +44,7 @@ Your `csproj` file may look like this:
 
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGMonkeymoto_GeneratorUtils_GenericSymbolWithSyntaxTree)\lib\netstandard2.0\Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGMonkeymoto_GeneratorUtils_GenericSymbolReferenceTree)\lib\netstandard2.0\Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
 
@@ -52,7 +52,7 @@ Your `csproj` file may look like this:
 ````
 
 Once this project has been added to your incremental generator, you can then
-use the `GenericSymbolWithSyntaxTree.FromIncrementalGeneratorInitializationContext`
+use the `GenericSymbolReferenceTree.FromIncrementalGeneratorInitializationContext`
 method to get an `IncrementalValueProvider` which gives you access to the tree.
 For example:
 
@@ -66,7 +66,7 @@ namespace MyProjectGenerator
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            var symbolTree = Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree.FromIncrementalGeneratorInitializationContext(context);
+            var symbolTree = Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree.FromIncrementalGeneratorInitializationContext(context);
             var symbolToFind = context.CompilationProvider.Select(static (compilation, _) =>
             {
                 return compilation.GetTypeByMetadataName("MyProject.MyGenericType`1")!;
@@ -76,7 +76,7 @@ namespace MyProjectGenerator
                 var (symbolTree, symbolToFind) = x;
                 return symbolTree.GetBranchesBySymbol(symbolToFind, cancellationToken);
             });
-            // `symbols` is an `IncrementalValueProvider<IEnumerable<GenericSymbolWithSyntax>>`
+            // `symbols` is an `IncrementalValueProvider<IEnumerable<GenericSymbolReference>>`
             // this represents each *closed* instance of `MyProject.MyGenericType<T>` in the compilation
             // i.e., `MyProject.MyGenericType<int>`, `MyProject.MyGenericType<double>`, etc.
         }
@@ -85,6 +85,6 @@ namespace MyProjectGenerator
 ````
 
 The methods `GetBranch` and `GetBranchesBySymbol` are provided by the
-`GenericSymbolWithSyntaxTree`, and can be used to retrieve the closed generic
+`GenericSymbolReferenceTree`, and can be used to retrieve the closed generic
 symbols used in your project's compilation, each paired with the relevant
 syntax nodes.

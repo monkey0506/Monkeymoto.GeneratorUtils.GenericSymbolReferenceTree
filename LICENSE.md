@@ -1,5 +1,5 @@
-# GenericSymbolWithSyntaxTree
-**GenericSymbolWithSyntaxTree**
+# GenericSymbolReferenceTree
+**GenericSymbolReferenceTree**
 
 Copyright (C) 2024 Monkeymoto Productions, Inc.
 

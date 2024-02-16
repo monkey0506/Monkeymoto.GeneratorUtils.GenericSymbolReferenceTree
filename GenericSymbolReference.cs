@@ -14,7 +14,7 @@ namespace Monkeymoto.GeneratorUtils
     /// <summary>
     /// Represents a generic <see cref="ISymbol"/> and an associated <see cref="SyntaxNode"/>.
     /// </summary>
-    public readonly struct GenericSymbolWithSyntax : IEquatable<GenericSymbolWithSyntax>
+    public readonly struct GenericSymbolReference : IEquatable<GenericSymbolReference>
     {
         private const string InvalidMethodSymbolError = "Symbol must be a generic method.";
         private const string InvalidNamedTypeSymbolError = "Symbol must be a generic named type.";
@@ -47,9 +47,9 @@ namespace Monkeymoto.GeneratorUtils
         /// </remarks>
         public readonly ImmutableArray<ITypeSymbol> TypeArguments;
 
-        public static bool operator ==(GenericSymbolWithSyntax left, GenericSymbolWithSyntax right) =>
+        public static bool operator ==(GenericSymbolReference left, GenericSymbolReference right) =>
             left.Equals(right);
-        public static bool operator !=(GenericSymbolWithSyntax left, GenericSymbolWithSyntax right) => !(left == right);
+        public static bool operator !=(GenericSymbolReference left, GenericSymbolReference right) => !(left == right);
 
         private static ISymbol CheckSymbol
         (
@@ -89,7 +89,7 @@ namespace Monkeymoto.GeneratorUtils
             return syntaxNode;
         }
 
-        internal static GenericSymbolWithSyntax? FromSyntaxNodeInternal
+        internal static GenericSymbolReference? FromSyntaxNodeInternal
         (
             SyntaxNode syntaxNode,
             SemanticModel semanticModel,
@@ -136,7 +136,7 @@ namespace Monkeymoto.GeneratorUtils
         /// generic symbol or the symbol is the <see cref="ISymbol.OriginalDefinition">original symbol definition</see>;
         /// otherwise, the new instance.
         /// </returns>
-        public static GenericSymbolWithSyntax? FromSyntaxNode
+        public static GenericSymbolReference? FromSyntaxNode
         (
             SyntaxNode syntaxNode,
             SemanticModel semanticModel,
@@ -205,7 +205,7 @@ namespace Monkeymoto.GeneratorUtils
             };
         }
 
-        internal GenericSymbolWithSyntax(ISymbol symbol, SyntaxNode node)
+        internal GenericSymbolReference(ISymbol symbol, SyntaxNode node)
         {
             IsClosedTypeOrMethod = !IsOpenTypeOrMethodSymbol(symbol);
             Node = node;
@@ -219,7 +219,7 @@ namespace Monkeymoto.GeneratorUtils
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericSymbolWithSyntax"/> class with the specified symbol and syntax.
+        /// Initializes a new instance of the <see cref="GenericSymbolReference"/> class with the specified symbol and syntax.
         /// </summary>
         /// <param name="methodSymbol">The symbol to associate with <paramref name="identifierNameSyntax"/>.</param>
         /// <param name="identifierNameSyntax">The syntax to associate with <paramref name="methodSymbol"/>.</param>
@@ -229,12 +229,12 @@ namespace Monkeymoto.GeneratorUtils
         /// <exception cref="ArgumentException">
         /// <paramref name="methodSymbol"/> was not a generic method.
         /// </exception>
-        public GenericSymbolWithSyntax(IMethodSymbol methodSymbol, IdentifierNameSyntax identifierNameSyntax) :
+        public GenericSymbolReference(IMethodSymbol methodSymbol, IdentifierNameSyntax identifierNameSyntax) :
             this(CheckSymbol(methodSymbol), CheckSyntax(identifierNameSyntax))
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericSymbolWithSyntax"/> class with the specified symbol and syntax.
+        /// Initializes a new instance of the <see cref="GenericSymbolReference"/> class with the specified symbol and syntax.
         /// </summary>
         /// <param name="methodSymbol">The symbol to associate with <paramref name="invocationExpressionSyntax"/>.</param>
         /// <param name="invocationExpressionSyntax">The syntax to associate with <paramref name="methodSymbol"/>.</param>
@@ -244,12 +244,12 @@ namespace Monkeymoto.GeneratorUtils
         /// <exception cref="ArgumentException">
         /// <paramref name="methodSymbol"/> was not a generic method.
         /// </exception>
-        public GenericSymbolWithSyntax(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax) :
+        public GenericSymbolReference(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax) :
             this(CheckSymbol(methodSymbol), CheckSyntax(invocationExpressionSyntax))
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericSymbolWithSyntax"/> class with the specified symbol and syntax.
+        /// Initializes a new instance of the <see cref="GenericSymbolReference"/> class with the specified symbol and syntax.
         /// </summary>
         /// <param name="namedTypeSymbol">The symbol to associate with <paramref name="genericNameSyntax"/>.</param>
         /// <param name="genericNameSyntax">The syntax to associate with <paramref name="namedTypeSymbol"/>.</param>
@@ -259,22 +259,22 @@ namespace Monkeymoto.GeneratorUtils
         /// <exception cref="ArgumentException">
         /// <paramref name="namedTypeSymbol"/> was not a generic named type.
         /// </exception>
-        public GenericSymbolWithSyntax(INamedTypeSymbol namedTypeSymbol, GenericNameSyntax genericNameSyntax) :
+        public GenericSymbolReference(INamedTypeSymbol namedTypeSymbol, GenericNameSyntax genericNameSyntax) :
             this(CheckSymbol(namedTypeSymbol), CheckSyntax(genericNameSyntax))
         { }
 
         public override bool Equals(object? obj)
         {
-            return obj is GenericSymbolWithSyntax other && Equals(other);
+            return obj is GenericSymbolReference other && Equals(other);
         }
 
-        public bool Equals(GenericSymbolWithSyntax other)
+        public bool Equals(GenericSymbolReference other)
         {
             return SymbolEqualityComparer.Default.Equals(Symbol, other.Symbol) && Node.IsEquivalentTo(other.Node);
         }
 
         /// <summary>
-        /// Gets the hash code for this <see cref="GenericSymbolWithSyntax"/>.
+        /// Gets the hash code for this <see cref="GenericSymbolReference"/>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -284,7 +284,7 @@ namespace Monkeymoto.GeneratorUtils
         /// match the fields of this class.
         /// </para>
         /// </remarks>
-        /// <returns>The hash value generated for this <see cref="GenericSymbolWithSyntax"/>.</returns>
+        /// <returns>The hash value generated for this <see cref="GenericSymbolReference"/>.</returns>
         public override int GetHashCode()
         {
             unchecked

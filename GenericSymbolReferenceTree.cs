@@ -22,17 +22,17 @@ namespace Monkeymoto.GeneratorUtils
     /// <see cref="GetBranchesBySymbol">GetBranchesBySymbol</see>.
     /// </para>
     /// </remarks>
-    public sealed class GenericSymbolWithSyntaxTree
+    public sealed class GenericSymbolReferenceTree
     {
-        private readonly Dictionary<GenericSymbolWithSyntax, HashSet<GenericSymbolWithSyntax>> closedBranches = [];
-        private readonly HashSet<GenericSymbolWithSyntax> openBranches = [];
+        private readonly Dictionary<GenericSymbolReference, HashSet<GenericSymbolReference>> closedBranches = [];
+        private readonly HashSet<GenericSymbolReference> openBranches = [];
 
         /// <summary>
         /// Creates a new tree from an incremental generator initialization context.
         /// </summary>
         /// <param name="context">The context used to create the new tree.</param>
         /// <returns>An <see cref="IncrementalValueProvider{TValue}"/> which provides the newly created tree.</returns>
-        public static IncrementalValueProvider<GenericSymbolWithSyntaxTree> FromIncrementalGeneratorInitializationContext
+        public static IncrementalValueProvider<GenericSymbolReferenceTree> FromIncrementalGeneratorInitializationContext
         (
             IncrementalGeneratorInitializationContext context
         )
@@ -45,7 +45,7 @@ namespace Monkeymoto.GeneratorUtils
         /// File paths to exclude from the tree, for example files your generator added to the compilation that contain only
         /// definitions.
         /// </param>
-        public static IncrementalValueProvider<GenericSymbolWithSyntaxTree> FromIncrementalGeneratorInitializationContext
+        public static IncrementalValueProvider<GenericSymbolReferenceTree> FromIncrementalGeneratorInitializationContext
         (
             IncrementalGeneratorInitializationContext context,
             params string[] excludePaths
@@ -67,30 +67,30 @@ namespace Monkeymoto.GeneratorUtils
             (
                 excludePaths.Length == 0 ? Predicate : PredicateWithExclusions,
                 static (context, cancellationToken) =>
-                    GenericSymbolWithSyntax.FromSyntaxNodeInternal(context.Node, context.SemanticModel, cancellationToken)
+                    GenericSymbolReference.FromSyntaxNodeInternal(context.Node, context.SemanticModel, cancellationToken)
             ).Collect().Select
             (
-                static (symbolsWithSyntax, cancellationToken) =>
-                    new GenericSymbolWithSyntaxTree(symbolsWithSyntax, cancellationToken)
+                static (symbolsReference, cancellationToken) =>
+                    new GenericSymbolReferenceTree(symbolsReference, cancellationToken)
             );
         }
 
-        private GenericSymbolWithSyntaxTree
+        private GenericSymbolReferenceTree
         (
-            ImmutableArray<GenericSymbolWithSyntax?> symbolsWithSyntax,
+            ImmutableArray<GenericSymbolReference?> symbolsReference,
             CancellationToken cancellationToken
         )
         {
-            foreach (var symbolWithSyntax in symbolsWithSyntax)
+            foreach (var symbolReference in symbolsReference)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                switch (symbolWithSyntax?.IsClosedTypeOrMethod)
+                switch (symbolReference?.IsClosedTypeOrMethod)
                 {
                     case true:
-                        closedBranches[symbolWithSyntax.Value] = [symbolWithSyntax.Value];
+                        closedBranches[symbolReference.Value] = [symbolReference.Value];
                         break;
                     case false:
-                        _ = openBranches.Add(symbolWithSyntax.Value);
+                        _ = openBranches.Add(symbolReference.Value);
                         break;
                     case null:
                     default:
@@ -102,42 +102,42 @@ namespace Monkeymoto.GeneratorUtils
         /// <summary>
         /// Returns a collection which represents the closed generic symbols associated with the given symbol and syntax node.
         /// </summary>
-        /// <param name="symbolWithSyntax">The generic symbol and syntax node to find in the tree.</param>
+        /// <param name="symbolReference">The generic symbol and syntax node to find in the tree.</param>
         /// <param name="cancellationToken">
         /// The <see cref="CancellationToken"/> that will be observed while searching the tree.
         /// </param>
         /// <returns>
         /// A collection representing the closed generic symbols associated with the given symbol after type substitution. Each
-        /// item in the returned collection represents the same syntax node as <paramref name="symbolWithSyntax"/>.
+        /// item in the returned collection represents the same syntax node as <paramref name="symbolReference"/>.
         /// </returns>
         /// <seealso cref="GetBranchesBySymbol"/>
-        public IEnumerable<GenericSymbolWithSyntax> GetBranch
+        public IEnumerable<GenericSymbolReference> GetBranch
         (
-            GenericSymbolWithSyntax symbolWithSyntax,
+            GenericSymbolReference symbolReference,
             CancellationToken cancellationToken
         )
         {
-            if (closedBranches.TryGetValue(symbolWithSyntax, out var branch))
+            if (closedBranches.TryGetValue(symbolReference, out var branch))
             {
                 // we have already looked up the closed branches for this symbol/node before
                 return branch;
             }
-            if (!openBranches.Remove(symbolWithSyntax))
+            if (!openBranches.Remove(symbolReference))
             {
-                // an unknown symbol/node was found - tree is incomplete or `symbolWithSyntax` is `default` constructed
+                // an unknown symbol/node was found - tree is incomplete or `symbolReference` is `default` constructed
                 // we don't want to force a compilation failure here, so the best we can do is report no symbols found
                 branch = [];
-                closedBranches[symbolWithSyntax] = branch;
+                closedBranches[symbolReference] = branch;
                 return branch;
             }
             // get a list of all possible type argument lists
-            var candidateArgumentLists = new List<List<ITypeSymbol>>(symbolWithSyntax.TypeArguments.Length);
-            for (int i = 0; i < symbolWithSyntax.TypeArguments.Length; ++i)
+            var candidateArgumentLists = new List<List<ITypeSymbol>>(symbolReference.TypeArguments.Length);
+            for (int i = 0; i < symbolReference.TypeArguments.Length; ++i)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 candidateArgumentLists.Add([]);
-                var typeArgument = symbolWithSyntax.TypeArguments[i];
-                if (GenericSymbolWithSyntax.IsOpenTypeOrMethodSymbol(typeArgument))
+                var typeArgument = symbolReference.TypeArguments[i];
+                if (GenericSymbolReference.IsOpenTypeOrMethodSymbol(typeArgument))
                 {
                     // typeArgument is either a type parameter of some other type (`T` from an enclosing `Foo<T>`) OR
                     // it is an open generic type (`Foo<T>`), discover all possible substitutions
@@ -161,7 +161,7 @@ namespace Monkeymoto.GeneratorUtils
             IMethodSymbol? methodSymbol = null;
             INamedTypeSymbol? namedTypeSymbol = null;
             Func<ITypeSymbol[], ISymbol>? construct = null;
-            switch (symbolWithSyntax.Symbol)
+            switch (symbolReference.Symbol)
             {
                 case IMethodSymbol symbol:
                     methodSymbol = symbol;
@@ -184,9 +184,9 @@ namespace Monkeymoto.GeneratorUtils
             foreach (var constructedSymbol in constructedSymbols)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                _ = branch.Add(new(constructedSymbol, symbolWithSyntax.Node));
+                _ = branch.Add(new(constructedSymbol, symbolReference.Node));
             }
-            closedBranches[symbolWithSyntax] = branch;
+            closedBranches[symbolReference] = branch;
             return branch.ToImmutableArray(); // ensure returned value can't mutate the tree
         }
 
@@ -214,7 +214,7 @@ namespace Monkeymoto.GeneratorUtils
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="symbol"/> was <see langword="null"/>.</exception>
         /// <seealso cref="GetBranch"/>
-        public IEnumerable<GenericSymbolWithSyntax> GetBranchesBySymbol
+        public IEnumerable<GenericSymbolReference> GetBranchesBySymbol
         (
             ISymbol symbol,
             CancellationToken cancellationToken
@@ -222,11 +222,11 @@ namespace Monkeymoto.GeneratorUtils
         {
             ArgumentNullExceptionHelper.ThrowIfNull(symbol);
 
-            bool Match(GenericSymbolWithSyntax x) => symbol.IsDefinition ?
+            bool Match(GenericSymbolReference x) => symbol.IsDefinition ?
                 SymbolEqualityComparer.Default.Equals(symbol, x.Symbol.OriginalDefinition) :
                 SymbolEqualityComparer.Default.Equals(symbol, x.Symbol);
 
-            var branches = new HashSet<GenericSymbolWithSyntax>();
+            var branches = new HashSet<GenericSymbolReference>();
             // the tree branches may change during iteration, make a copy of what we're searching for before iterating
             var searchBranches = closedBranches.Keys.Where(Match).ToImmutableArray();
             foreach (var searchBranch in searchBranches)

@@ -12,7 +12,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <RootNamespace>Monkeymoto.GeneratorUtils</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageId>Monkeymoto.GeneratorUtils.GenericSymbolWithSyntaxTree</PackageId>
+    <PackageId>Monkeymoto.GeneratorUtils.GenericSymbolReferenceTree</PackageId>
     <Title>$(AssemblyName)</Title>
     <Company>Monkeymoto Productions, Inc.</Company>
     <Authors>monkey0506</Authors>
@@ -21,7 +21,7 @@
     <Description>C# incremental generator utility to produce a tree of closed generic symbols
 used in your project's compilation, each paired with a syntax node.</Description>
     <PackageProjectUrl></PackageProjectUrl>
-    <RepositoryUrl>https://github.com/monkey0506/GenericSymbolWithSyntaxTree</RepositoryUrl>
+    <RepositoryUrl>https://github.com/monkey0506/GenericSymbolReferenceTree</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>incremental-generator, source-generator, generics</PackageTags>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
