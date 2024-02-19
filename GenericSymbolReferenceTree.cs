@@ -184,7 +184,7 @@ namespace Monkeymoto.GeneratorUtils
             foreach (var constructedSymbol in constructedSymbols)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                _ = branch.Add(new(constructedSymbol, symbolReference.Node));
+                _ = branch.Add(new(constructedSymbol, symbolReference.SemanticModel, symbolReference.Node));
             }
             closedBranches[symbolReference] = branch;
             return branch.ToImmutableArray(); // ensure returned value can't mutate the tree

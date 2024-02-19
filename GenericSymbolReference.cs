@@ -32,6 +32,10 @@ namespace Monkeymoto.GeneratorUtils
         /// </summary>
         public readonly SyntaxNode Node;
         /// <summary>
+        /// Represents the <see cref="SemanticModel"/> used to acquire <see cref="Symbol">Symbol</see>.
+        /// </summary>
+        public readonly SemanticModel? SemanticModel;
+        /// <summary>
         /// Represents the <see cref="ISymbol"/> associated with <see cref="Node">Node</see>.
         /// </summary>
         public readonly ISymbol Symbol;
@@ -105,8 +109,10 @@ namespace Monkeymoto.GeneratorUtils
             return symbol switch
             {
                 null or ISymbol { IsDefinition: true } => null,
-                IMethodSymbol methodSymbol => methodSymbol.IsGenericMethod ? new(methodSymbol, syntaxNode) : null,
-                INamedTypeSymbol namedTypeSymbol => namedTypeSymbol.IsGenericType ? new(namedTypeSymbol, syntaxNode) : null,
+                IMethodSymbol methodSymbol => methodSymbol.IsGenericMethod ? new(methodSymbol, semanticModel, syntaxNode) : null,
+                INamedTypeSymbol namedTypeSymbol => namedTypeSymbol.IsGenericType ?
+                    new(namedTypeSymbol, semanticModel, syntaxNode) :
+                    null,
                 _ => null
             };
         }
@@ -205,10 +211,11 @@ namespace Monkeymoto.GeneratorUtils
             };
         }
 
-        internal GenericSymbolReference(ISymbol symbol, SyntaxNode node)
+        internal GenericSymbolReference(ISymbol symbol, SemanticModel? semanticModel, SyntaxNode node)
         {
             IsClosedTypeOrMethod = !IsOpenTypeOrMethodSymbol(symbol);
             Node = node;
+            SemanticModel = semanticModel;
             Symbol = symbol;
             TypeArguments = symbol switch
             {
@@ -230,7 +237,17 @@ namespace Monkeymoto.GeneratorUtils
         /// <paramref name="methodSymbol"/> was not a generic method.
         /// </exception>
         public GenericSymbolReference(IMethodSymbol methodSymbol, IdentifierNameSyntax identifierNameSyntax) :
-            this(CheckSymbol(methodSymbol), CheckSyntax(identifierNameSyntax))
+            this(methodSymbol, null, identifierNameSyntax)
+        { }
+
+        /// <inheritdoc cref="GenericSymbolReference(IMethodSymbol, IdentifierNameSyntax)"/>
+        /// <param name="semanticModel"></param>
+        public GenericSymbolReference
+        (
+            IMethodSymbol methodSymbol,
+            SemanticModel? semanticModel,
+            IdentifierNameSyntax identiferNameSyntax
+        ) : this(CheckSymbol(methodSymbol), semanticModel, CheckSyntax(identiferNameSyntax))
         { }
 
         /// <summary>
@@ -245,7 +262,17 @@ namespace Monkeymoto.GeneratorUtils
         /// <paramref name="methodSymbol"/> was not a generic method.
         /// </exception>
         public GenericSymbolReference(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax) :
-            this(CheckSymbol(methodSymbol), CheckSyntax(invocationExpressionSyntax))
+            this(methodSymbol, null, invocationExpressionSyntax)
+        { }
+
+        /// <inheritdoc cref="GenericSymbolReference(IMethodSymbol, InvocationExpressionSyntax)"/>
+        /// <param name="semanticModel"></param>
+        public GenericSymbolReference
+        (
+            IMethodSymbol methodSymbol,
+            SemanticModel? semanticModel,
+            InvocationExpressionSyntax invocationExpressionSyntax
+        ) : this(CheckSymbol(methodSymbol), semanticModel, CheckSyntax(invocationExpressionSyntax))
         { }
 
         /// <summary>
@@ -260,7 +287,17 @@ namespace Monkeymoto.GeneratorUtils
         /// <paramref name="namedTypeSymbol"/> was not a generic named type.
         /// </exception>
         public GenericSymbolReference(INamedTypeSymbol namedTypeSymbol, GenericNameSyntax genericNameSyntax) :
-            this(CheckSymbol(namedTypeSymbol), CheckSyntax(genericNameSyntax))
+            this(namedTypeSymbol, null, genericNameSyntax)
+        { }
+
+        /// <inheritdoc cref="GenericSymbolReference(INamedTypeSymbol, GenericNameSyntax)"/>
+        /// <param name="semanticModel"></param>
+        public GenericSymbolReference
+        (
+            INamedTypeSymbol namedTypeSymbol,
+            SemanticModel? semanticModel,
+            GenericNameSyntax genericNameSyntax
+        ) : this(CheckSymbol(namedTypeSymbol), semanticModel, CheckSyntax(genericNameSyntax))
         { }
 
         public override bool Equals(object? obj)
