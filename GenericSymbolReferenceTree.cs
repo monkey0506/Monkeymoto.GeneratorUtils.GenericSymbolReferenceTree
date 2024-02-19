@@ -22,7 +22,7 @@ namespace Monkeymoto.GeneratorUtils
     /// <see cref="GetBranchesBySymbol">GetBranchesBySymbol</see>.
     /// </para>
     /// </remarks>
-    public sealed class GenericSymbolReferenceTree
+    public sealed class GenericSymbolReferenceTree : IDisposable
     {
         private readonly Dictionary<GenericSymbolReference, HashSet<GenericSymbolReference>> closedBranches = [];
         private readonly HashSet<GenericSymbolReference> openBranches = [];
@@ -97,6 +97,12 @@ namespace Monkeymoto.GeneratorUtils
                         break;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            closedBranches.Clear();
+            openBranches.Clear();
         }
 
         /// <summary>
