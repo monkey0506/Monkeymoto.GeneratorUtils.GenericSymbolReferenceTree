@@ -28,6 +28,15 @@ namespace Monkeymoto.GeneratorUtils
         /// </returns>
         public readonly bool IsClosedTypeOrMethod = false;
         /// <summary>
+        /// Represents whether the <see cref="Node">Node</see> is a syntax reference to a closed generic type or closed generic
+        /// method.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true"/> if <see cref="Node">Node</see> references a generic type or generic method with no
+        /// unsubstituted type arguments; otherwise, <see langword="false"/>.
+        /// </returns>
+        public readonly bool IsSyntaxReferenceClosedTypeOrMethod;
+        /// <summary>
         /// Represents the <see cref="SyntaxNode"/> associated with <see cref="Symbol">Symbol</see>.
         /// </summary>
         public readonly SyntaxNode Node;
@@ -211,9 +220,14 @@ namespace Monkeymoto.GeneratorUtils
             };
         }
 
-        internal GenericSymbolReference(ISymbol symbol, SemanticModel? semanticModel, SyntaxNode node)
+        internal GenericSymbolReference(ISymbol symbol, SemanticModel? semanticModel, SyntaxNode node) :
+            this(symbol, semanticModel, node, isConstructedSymbol: true)
+        { }
+
+        internal GenericSymbolReference(ISymbol symbol, SemanticModel? semanticModel, SyntaxNode node, bool isConstructedSymbol)
         {
             IsClosedTypeOrMethod = !IsOpenTypeOrMethodSymbol(symbol);
+            IsSyntaxReferenceClosedTypeOrMethod = !isConstructedSymbol && IsClosedTypeOrMethod;
             Node = node;
             SemanticModel = semanticModel;
             Symbol = symbol;
