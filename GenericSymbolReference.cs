@@ -118,9 +118,11 @@ namespace Monkeymoto.GeneratorUtils
             return symbol switch
             {
                 null or ISymbol { IsDefinition: true } => null,
-                IMethodSymbol methodSymbol => methodSymbol.IsGenericMethod ? new(methodSymbol, semanticModel, syntaxNode) : null,
+                IMethodSymbol methodSymbol => methodSymbol.IsGenericMethod ?
+                    new(methodSymbol, semanticModel, syntaxNode, isConstructedSymbol: false) :
+                    null,
                 INamedTypeSymbol namedTypeSymbol => namedTypeSymbol.IsGenericType ?
-                    new(namedTypeSymbol, semanticModel, syntaxNode) :
+                    new(namedTypeSymbol, semanticModel, syntaxNode, isConstructedSymbol: false) :
                     null,
                 _ => null
             };
