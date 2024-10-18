@@ -1,5 +1,12 @@
 # CHANGELOG.md
 
+## 2.0.1 (2024-10-18)
+
+ - Allow tracking the `SemanticModel` used to acquire symbols.
+ - Make tree `IDisposable` to allow freeing memory.
+ - Update `Microsoft.CodeAnalysis.CSharp` package version to 4.11.0.
+ - Include `CHANGELOG.md` in NuGet package.
+
 ## 2.0.0.1 (2024-02-16)
 
  - Fix GitHub URL in NuGet package.
